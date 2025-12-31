@@ -1,5 +1,5 @@
 # Markdown Tables to Inkscape Convertor
-#### Video Demo: <URL HERE>
+#### Video Demo: https://youtu.be/EBj2WXKmZUs
 #### Description:
 Convert Markdown (tables + text) to Hershey text compatible table in inkscape.
 ```
