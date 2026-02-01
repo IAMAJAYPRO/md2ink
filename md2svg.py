@@ -1,6 +1,8 @@
 import argparse
 import re
 import textwrap
+import html
+from Objects import Line, Group, textSpan
 
 FONT_FAMILIY = "Myhandwriting"
 # mm= px/(DPI:=96)*25.4
@@ -31,10 +33,11 @@ class MarkdownToSVG:
         self.DRAW_BORDERS = DRAW_BORDERS
         self.COL_GAP = COL_GAP
         self.FONT_WIDTH = RATIO*FONT_SIZE
-        self.svg_elements = []
+        self.svg_elements = Group(label="Table")
         self.y_cursor = 0
 
     def _wrap_text(self, text) -> list[str]:
+        text = html.escape(text)
         text_lines = textwrap.wrap(text, self.MAX_CHARS, break_long_words=False,
                                    break_on_hyphens=False) if self.MAX_CHARS else [text]
         return [x.rstrip() for x in text_lines]
@@ -56,14 +59,14 @@ class MarkdownToSVG:
             wrapped_rows.append(wrapped_row)
         return wrapped_rows, col_widths
 
-    def _inkscape_text(self, x: float, y: float, lines: list[str]):
+    def _inkscape_text(self, x: float, y: float, lines: list[Line]):
         """
         Create an SVG text object with multiple tspans for each line.
         """
+
         tspans = "\n".join(
             # style="font-size:{self.FONT_SIZE}{Made by: @IAMAJAYPRO}px; line-height:{self.FONT_SIZE + 2}px;"
-            f' <tspan x="{x}" y="{y + i * self.FONT_SIZE}" >{line}</tspan>'
-            for i, line in enumerate(lines)
+            textSpan(x, y + i * self.LINE_SPACING, line) for i, line in enumerate(lines)
         )
         return (f'<text xml:space="preserve"  '  # transform="scale(1)"
                 f'style="font-size:{self.FONT_SIZE}px; line-height:{self.FONT_SIZE + 2}px; '
@@ -73,7 +76,7 @@ class MarkdownToSVG:
                 f'x="0" y="0">\n{tspans}\n</text>\n')
 
     def render_table(self, rows, y_offset):
-        elements, lines = [], []
+        elements = Group(label="elements")
         wrapped_rows, col_widths = self._compute_wrapped_rows_and_widths(rows)
 
         row_heights = [max(len(cell) for cell in row) *
@@ -91,23 +94,23 @@ class MarkdownToSVG:
             y_cursor += rh
 
         if self.DRAW_BORDERS:
-            # horizontal lines
+            horizontal = Group(label="--horizontal")
             y_cursor = y_offset
             for rh in row_heights:
-                lines.append(
-                    f'<line x1="0" y1="{y_cursor}" x2="{table_width}" y2="{y_cursor}" stroke="black"/>')
+                horizontal.append(Line(0, y_cursor, table_width, y_cursor))
                 y_cursor += rh
-            lines.append(
-                f'<line x1="0" y1="{y_cursor}" x2="{table_width}" y2="{y_cursor}" stroke="black"/>')
+            horizontal.append(Line(0, y_cursor, table_width, y_cursor))
             # vertical lines
+            vertical = Group(label="| vertical")
             x_cursor = 0
             for w in col_widths:
-                lines.append(
-                    f'<line x1="{x_cursor}" y1="{y_offset}" x2="{x_cursor}" y2="{y_offset + table_height}" stroke="black"/>')
-                x_cursor += w + self.COL_GAP
-            lines.append(
-                f'<line x1="{x_cursor}" y1="{y_offset}" x2="{x_cursor}" y2="{y_offset + table_height}" stroke="black"/>')
+                vertical.append(
+                    Line(x_cursor, y_offset, x_cursor, y_offset+table_height))
 
+                x_cursor += w + self.COL_GAP
+            vertical.append(
+                Line(x_cursor, y_offset, x_cursor, y_offset+table_height))
+            lines = Group(label="Lines", iterable=[horizontal, vertical])
         return elements, lines, y_offset + table_height + self.LINE_SPACING
 
     def render_text(self, line, y_offset):
@@ -124,7 +127,8 @@ class MarkdownToSVG:
                 if buffer:
                     elements, lines, self.y_cursor = self.render_table(
                         buffer, self.y_cursor)
-                    self.svg_elements.extend(elements + lines)
+                    self.svg_elements.append(elements)
+                    self.svg_elements.append(lines)
                     buffer = []
                 if line.strip():
                     self.svg_elements.extend(
@@ -133,11 +137,12 @@ class MarkdownToSVG:
         if buffer:
             elements, lines, self.y_cursor = self.render_table(
                 buffer, self.y_cursor)
-            self.svg_elements.extend(elements + lines)
+            self.svg_elements.append(elements)
+            self.svg_elements.append(lines)
 
     def export_svg(self, filename="out.svg"):
-        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="{self.y_cursor + 50}">\n' + \
-            ''.join(self.svg_elements) + '\n</svg>'
+        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="2000" id="table" height="{
+            self.y_cursor + 50}">\n{self.svg_elements}</svg>'
         with open(filename, "w") as f:
             f.write(svg_content)
         print(f"SVG created: {filename}")
