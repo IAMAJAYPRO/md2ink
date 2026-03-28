@@ -2,7 +2,7 @@ import argparse
 import re
 import textwrap
 import html
-from Objects import Line, Group, textSpan
+from Objects import Line, Group, textSpan, Rect
 
 FONT_FAMILIY = "Myhandwriting"
 # mm= px/(DPI:=96)*25.4
@@ -31,7 +31,7 @@ class MarkdownToSVG:
         self.LINE_SPACING = LINE_SPACING
         self.MAX_CHARS = MAX_CHARS
         self.DRAW_BORDERS = DRAW_BORDERS
-        self.COL_GAP = COL_GAP
+        self.COL_GAP = COL_GAP*RATIO*FONT_SIZE
         self.FONT_WIDTH = RATIO*FONT_SIZE
         self.svg_elements = Group(label="Table")
         self.y_cursor = 0
@@ -82,7 +82,7 @@ class MarkdownToSVG:
         row_heights = [max(len(cell) for cell in row) *
                        self.LINE_SPACING for row in wrapped_rows]
         table_height = sum(row_heights)
-        table_width = sum(col_widths) + self.COL_GAP * (len(col_widths) - 1)
+        table_width = sum(col_widths) + self.COL_GAP * len(col_widths)
 
         y_cursor = y_offset
         for wrapped_row, rh in zip(wrapped_rows, row_heights):
@@ -94,23 +94,25 @@ class MarkdownToSVG:
             y_cursor += rh
 
         if self.DRAW_BORDERS:
+            # Outer boundary as a single rectangle (so Inkscape treats it as one object)
+            border = Rect(0, y_offset, table_width, table_height)
+
+            # Internal grid lines only (outer edges are handled by the border rect)
             horizontal = Group(label="--horizontal")
             y_cursor = y_offset
-            for rh in row_heights:
-                horizontal.append(Line(0, y_cursor, table_width, y_cursor))
+            for rh in row_heights[:-1]:
                 y_cursor += rh
-            horizontal.append(Line(0, y_cursor, table_width, y_cursor))
-            # vertical lines
+                horizontal.append(Line(0, y_cursor, table_width, y_cursor))
+
             vertical = Group(label="| vertical")
             x_cursor = 0
-            for w in col_widths:
+            for w in col_widths[:-1]:
+                x_cursor += w + self.COL_GAP
                 vertical.append(
                     Line(x_cursor, y_offset, x_cursor, y_offset+table_height))
 
-                x_cursor += w + self.COL_GAP
-            vertical.append(
-                Line(x_cursor, y_offset, x_cursor, y_offset+table_height))
-            lines = Group(label="Lines", iterable=[horizontal, vertical])
+            lines = Group(label="Lines", iterable=[
+                          border, horizontal, vertical])
         return elements, lines, y_offset + table_height + self.LINE_SPACING
 
     def render_text(self, line, y_offset):
@@ -171,7 +173,7 @@ if __name__ == "__main__":
     parser.add_argument("--no-borders", "-B",
                         action="store_true", help="Do not draw table borders")
     parser.add_argument("--col-gap", type=float, default=0,
-                        help="Gap after each column in px")
+                        help="Gap after each column in character_widths (default: 0)")
     parser.add_argument("--preset", type=Verify.preset,
                         default="NONE", help="Paper preset to use (SUNDARAM, NONE)")
     args = parser.parse_args()

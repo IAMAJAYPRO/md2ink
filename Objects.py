@@ -3,7 +3,7 @@ class Group:
 
     def __init__(self, label="group", iterable=[]):
         self.label = label
-        self.items:list = iterable.copy()
+        self.items: list = iterable.copy()
 
     def __str__(self):
         return f'<g inkscape:label="{self.label}">\n{" ".join(str(item) for item in self.items)}</g>\n'
@@ -29,7 +29,21 @@ class Line:
 
     def __str__(self):
         return f' <line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" y2="{self.y2}"/>\n'
-    
-def textSpan(x,y,line):
+
+
+class Rect:
+    "SVG rectangle"
+
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def __str__(self):
+        return f' <rect x="{self.x}" y="{self.y}" width="{self.width}" height="{self.height}" fill="none"/>\n'
+
+
+def textSpan(x, y, line):
     # style="font-size:{self.FONT_SIZE}{Made by: @IAMAJAYPRO}px; line-height:{self.FONT_SIZE + 2}px;"
     return f' <tspan x="{x}" y="{y}" >{line}</tspan>'
