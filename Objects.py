@@ -28,7 +28,10 @@ class Line:
         self.y2 = y2
 
     def __str__(self):
-        return f' <line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" y2="{self.y2}"/>\n'
+        return (
+            f' <line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" y2="{self.y2}" '
+            f'stroke="#1f2937" stroke-width="1.5"/>\n'
+        )
     
 def textSpan(x,y,line):
     # style="font-size:{self.FONT_SIZE}{Made by: @IAMAJAYPRO}px; line-height:{self.FONT_SIZE + 2}px;"

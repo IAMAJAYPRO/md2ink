@@ -33,8 +33,13 @@ class MarkdownToSVG:
         self.DRAW_BORDERS = DRAW_BORDERS
         self.COL_GAP = COL_GAP
         self.FONT_WIDTH = RATIO*FONT_SIZE
+        self.CELL_PADDING_X = 16
+        self.CELL_PADDING_Y = 10
+        self.TABLE_MARGIN_X = 20
+        self.TABLE_MARGIN_Y = 20
         self.svg_elements = Group(label="Table")
-        self.y_cursor = 0
+        self.y_cursor = self.TABLE_MARGIN_Y
+        self.content_width = 0
 
     def _wrap_text(self, text) -> list[str]:
         text = html.escape(text)
@@ -55,9 +60,15 @@ class MarkdownToSVG:
                 wrapped_row.append(lines)
                 max_len = max(len(line) for line in lines)
                 col_widths[c] = max(
-                    col_widths[c], max_len * self.FONT_WIDTH)
+                    col_widths[c], max_len * self.FONT_WIDTH + (self.CELL_PADDING_X * 2))
             wrapped_rows.append(wrapped_row)
         return wrapped_rows, col_widths
+
+    def _is_separator_row(self, row):
+        stripped_cells = [cell.strip() for cell in row if cell.strip()]
+        if not stripped_cells:
+            return False
+        return all(re.fullmatch(r":?-{3,}:?", cell) for cell in stripped_cells)
 
     def _inkscape_text(self, x: float, y: float, lines: list[Line]):
         """
@@ -70,8 +81,7 @@ class MarkdownToSVG:
         )
         return (f'<text xml:space="preserve"  '  # transform="scale(1)"
                 f'style="font-size:{self.FONT_SIZE}px; line-height:{self.FONT_SIZE + 2}px; '
-                # text-align:start; letter-spacing:-0.01px; white-space:pre; fill:#000000;" '
-                f'font-family:{FONT_FAMILIY};" '
+                f'fill:#111827; font-family:{FONT_FAMILIY}, Segoe UI, sans-serif;" '
                 # cords require here too for hershey
                 f'x="0" y="0">\n{tspans}\n</text>\n')
 
@@ -79,17 +89,20 @@ class MarkdownToSVG:
         elements = Group(label="elements")
         wrapped_rows, col_widths = self._compute_wrapped_rows_and_widths(rows)
 
-        row_heights = [max(len(cell) for cell in row) *
-                       self.LINE_SPACING for row in wrapped_rows]
+        row_heights = [
+            max(len(cell) for cell in row) * self.LINE_SPACING + (self.CELL_PADDING_Y * 2)
+            for row in wrapped_rows
+        ]
         table_height = sum(row_heights)
         table_width = sum(col_widths) + self.COL_GAP * (len(col_widths) - 1)
+        self.content_width = max(self.content_width, table_width)
 
         y_cursor = y_offset
         for wrapped_row, rh in zip(wrapped_rows, row_heights):
-            x_cursor = 0
+            x_cursor = self.TABLE_MARGIN_X
             for c, cell_lines in enumerate(wrapped_row):
                 elements.append(self._inkscape_text(
-                    x_cursor + 5, y_cursor + self.FONT_SIZE, cell_lines))
+                    x_cursor + self.CELL_PADDING_X, y_cursor + self.CELL_PADDING_Y + self.FONT_SIZE, cell_lines))
                 x_cursor += col_widths[c] + self.COL_GAP
             y_cursor += rh
 
@@ -97,12 +110,12 @@ class MarkdownToSVG:
             horizontal = Group(label="--horizontal")
             y_cursor = y_offset
             for rh in row_heights:
-                horizontal.append(Line(0, y_cursor, table_width, y_cursor))
+                horizontal.append(Line(self.TABLE_MARGIN_X, y_cursor, self.TABLE_MARGIN_X + table_width, y_cursor))
                 y_cursor += rh
-            horizontal.append(Line(0, y_cursor, table_width, y_cursor))
+            horizontal.append(Line(self.TABLE_MARGIN_X, y_cursor, self.TABLE_MARGIN_X + table_width, y_cursor))
             # vertical lines
             vertical = Group(label="| vertical")
-            x_cursor = 0
+            x_cursor = self.TABLE_MARGIN_X
             for w in col_widths:
                 vertical.append(
                     Line(x_cursor, y_offset, x_cursor, y_offset+table_height))
@@ -114,14 +127,22 @@ class MarkdownToSVG:
         return elements, lines, y_offset + table_height + self.LINE_SPACING
 
     def render_text(self, line, y_offset):
-        return [self._inkscape_text(5, y_offset, [line.strip()])]
+        self.content_width = max(self.content_width, len(line.strip()) * self.FONT_WIDTH)
+        return [self._inkscape_text(self.TABLE_MARGIN_X, y_offset, [line.strip()])]
 
     def convert(self, md_content):
         buffer = []
         for line in md_content:
             if "|" in line:
-                cells = re.findall(r'\s*([^|]+)\s*', line)
+                stripped = line.strip()
+                if stripped.startswith("|"):
+                    stripped = stripped[1:]
+                if stripped.endswith("|"):
+                    stripped = stripped[:-1]
+                cells = [cell.strip() for cell in stripped.split("|")]
                 if cells:
+                    if self._is_separator_row(cells):
+                        continue
                     buffer.append(cells)
             else:
                 if buffer:
@@ -141,9 +162,16 @@ class MarkdownToSVG:
             self.svg_elements.append(lines)
 
     def export_svg(self, filename="out.svg"):
-        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="2000" id="table" height="{
-            self.y_cursor + 50}">\n{self.svg_elements}</svg>'
-        with open(filename, "w") as f:
+        width = max(400, int(self.content_width + (self.TABLE_MARGIN_X * 2)))
+        height = self.y_cursor + 50
+        svg_content = (
+            f'<svg xmlns="http://www.w3.org/2000/svg" '
+            f'xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
+            f'width="{width}" height="{height}" viewBox="0 0 {width} {height}" id="table">\n'
+            f'<rect width="100%" height="100%" fill="#fffef8"/>\n'
+            f'{self.svg_elements}</svg>'
+        )
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(svg_content)
         print(f"SVG created: {filename}")
 
@@ -176,7 +204,7 @@ if __name__ == "__main__":
                         default="NONE", help="Paper preset to use (SUNDARAM, NONE)")
     args = parser.parse_args()
 
-    with open(args.input, "r") as f:
+    with open(args.input, "r", encoding="utf-8") as f:
         md_content = f.read().strip().splitlines()
 
     converter = Presets.__dict__.get(f"_Presets__{args.preset}")(
