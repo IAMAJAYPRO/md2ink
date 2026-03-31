@@ -25,7 +25,11 @@ class Presets:
 
 class MarkdownToSVG:
 
-    def __init__(self, FONT_SIZE=28, LINE_SPACING=30.50,
+    def __repr__(self):
+        attrs = ",\n ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
+
+    def __init__(self, FONT_SIZE=28, LINE_SPACING=30.5,
                  MAX_CHARS=None, DRAW_BORDERS=True, COL_GAP=0, RATIO=0.6):
         self.FONT_SIZE = FONT_SIZE
         self.LINE_SPACING = LINE_SPACING
@@ -143,8 +147,7 @@ class MarkdownToSVG:
             self.svg_elements.append(lines)
 
     def export_svg(self, filename="out.svg"):
-        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="2000" id="table" height="{
-            self.y_cursor + 50}">\n{self.svg_elements}</svg>'
+        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="2000" id="table" height="{self.y_cursor + 50}">\n{self.svg_elements}</svg>'
         with open(filename, "w") as f:
             f.write(svg_content)
         print(f"SVG created: {filename}")
@@ -176,6 +179,7 @@ if __name__ == "__main__":
                         help="Gap after each column in character_widths (default: 0)")
     parser.add_argument("--preset", type=Verify.preset,
                         default="NONE", help="Paper preset to use (SUNDARAM, NONE)")
+    parser.add_argument("--debug" ,action="store_true")
     args = parser.parse_args()
 
     with open(args.input, "r") as f:
@@ -187,5 +191,8 @@ if __name__ == "__main__":
         COL_GAP=args.col_gap,
         RATIO=args.ratio
     )
+    if args.debug:
+        print(md_content)
+        print(converter)
     converter.convert(md_content)
     converter.export_svg(args.output)

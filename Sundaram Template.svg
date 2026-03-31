@@ -24,11 +24,11 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="1.0267829"
-     inkscape:cx="262.47028"
-     inkscape:cy="424.62725"
+     inkscape:zoom="0.51339145"
+     inkscape:cx="323.34002"
+     inkscape:cy="469.42737"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-height="1009"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -48,6 +48,11 @@
        visible="true"
        dotted="false" /></sodipodi:namedview><defs
      id="defs1"><rect
+       x="161.67001"
+       y="94.469824"
+       width="691.48016"
+       height="618.43648"
+       id="rect124" /><rect
        x="199.65272"
        y="204.5223"
        width="185.04398"
@@ -125,4 +130,27 @@
      row="0" /><g
      inkscape:groupmode="layer"
      id="layer1"
-     inkscape:label="Layer 1" /></svg>
+     inkscape:label="Layer 1"><text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text122"
+       style="font-size:30.2362px;line-height:30.4252px;font-family:Myhandwriting;-inkscape-font-specification:Myhandwriting;letter-spacing:-0.01px;white-space:pre;shape-inside:url(#rect124);display:inline;fill:none;stroke-width:1.00157"><tspan
+         x="161.66992"
+         y="118.75416"
+         id="tspan7860">| Stage        | Input        | Output        |
+</tspan><tspan
+         x="161.66992"
+         y="149.63668"
+         id="tspan7862">| Markdown     | .md file     | Parsed table  |
+</tspan><tspan
+         x="161.66992"
+         y="180.51919"
+         id="tspan7864">| Layout       | Table data   | Positions     |
+</tspan><tspan
+         x="161.66992"
+         y="211.40172"
+         id="tspan7866">| SVG Render   | Positions    | SVG file      |
+</tspan><tspan
+         x="161.66992"
+         y="242.28424"
+         id="tspan7868">| Inkscape     | SVG          | Plot/Design   |</tspan></text></g></svg>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <name>Markdown Table → SVG</name>
+  <id>md2svg.gui</id>
+
+  <param name="tabs" type="notebook">
+
+    <!-- INPUT TAB -->
+    <page name="input" gui-text="Input">
+      <param name="md_input" type="string" appearance="multiline" gui-text="Markdown Input" />
+    </page>
+
+    <!-- TABLE TAB -->
+    <page name="table" gui-text="Table">
+      <param name="max_chars" type="int" gui-text="Max chars per cell (wrap)" min="0" max="500">0</param>
+      <param name="col_gap" type="float" gui-text="Column Gap" min="0" max="100">0</param>
+      <param name="draw_borders" type="bool" gui-text="Draw Borders">true</param>
+    </page>
+
+    <!-- TEXT TAB -->
+    <page name="text" gui-text="Text">
+      <param name="font_size" type="int" gui-text="Font Size" min="5" max="200">28</param>
+      <param name="line_spacing" type="float" gui-text="Line Spacing" min="1" max="500">30.5</param>
+      <param name="ratio" type="float" gui-text="Font Width Ratio" min="0.1" max="5">0.6</param>
+    </page>
+
+    <!-- ABOUT TAB -->
+    <page name="about" gui-text="About">
+      <param name="about_text" type="description">
+        Markdown Tables to Inkscape Converter
+
+        Convert Markdown tables and text into Hershey text compatible tables inside Inkscape.
+        Features:
+        • Auto-fit column widths
+        • Text wrapping per cell
+        • Optional borders
+        • Column gap control
+        • Paper presets
+        • Works with Hershey Text extension
+
+        CLI Version:
+        md2svg.py input.md --max-chars 20 --col-gap 2
+
+        Made by @IAMAJAYPRO
+      </param>
+    </page>
+
+  </param>
+  <effect>
+    <object-type>all</object-type>
+  </effect>
+
+  <script>
+    <command location="inx" interpreter="python">md2svg_gui.py</command>
+  </script>
+</inkscape-extension>
