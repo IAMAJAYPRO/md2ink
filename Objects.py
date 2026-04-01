@@ -28,7 +28,7 @@ class Line:
         self.y2 = y2
 
     def __str__(self):
-        return f' <line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" y2="{self.y2}"/>\n'
+        return f' <line x1="{self.x1}" y1="{self.y1}" x2="{self.x2}" y2="{self.y2}" stroke="#000000"/>\n'
 
 
 class Rect:
@@ -41,7 +41,7 @@ class Rect:
         self.height = height
 
     def __str__(self):
-        return f' <rect x="{self.x}" y="{self.y}" width="{self.width}" height="{self.height}" fill="none"/>\n'
+        return f' <rect x="{self.x}" y="{self.y}" width="{self.width}" height="{self.height}" fill="none" stroke="#000000"/>\n'
 
 
 def textSpan(x, y, line):

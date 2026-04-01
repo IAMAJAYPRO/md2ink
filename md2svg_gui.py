@@ -18,6 +18,8 @@ class Extension(inkex.EffectExtension):
         pars.add_argument("--preset")
 
         pars.add_argument("--tabs", default="")  # <<< ignore Inkscape tab argument
+        pars.add_argument("--debug", type=inkex.Boolean, default=False,
+                  help="Enable debug output")
 
     def effect(self):
         import tempfile
@@ -36,25 +38,6 @@ class Extension(inkex.EffectExtension):
 
             for elem in selected.values():
                 if isinstance(elem, inkex.TextElement):
-                    # Get font size in px
-                    font_size = elem.style.get("font-size")
-                    if font_size.endswith("px"):
-                        font_size = float(font_size[:-2])
-                    else:
-                        font_size = float(font_size)  # fallback
-
-                    # Get line spacing / leading (if set)
-                    line_height = elem.style.get("line-height", None)
-                    if line_height is not None:
-                        if line_height.endswith("px"):
-                            line_height = float(line_height[:-2])
-                        else:
-                            line_height = float(line_height)
-                    else:
-                        line_height = font_size * 1.1  # fallback if not set
-
-                    # font-family
-                    font_family = elem.style.get("font-family", "Myhandwriting")
                     text = "".join(elem.itertext())
                     md_lines.extend(text.splitlines())
         else:
@@ -71,10 +54,12 @@ class Extension(inkex.EffectExtension):
             RATIO=self.options.ratio
         )
 
-        #debug
-        inkex.utils.debug(f"debig check: {md_lines}")
-        inkex.utils.debug(f"OBj:\n{converter!r}")
-
+        if self.options.debug:
+            inkex.utils.debug("Debug ON: Selected elements and parsed data")
+            inkex.utils.debug(f"Selected nodes: {list(selected.keys())}")
+            # you can also dump md_lines or converter repr
+            inkex.utils.debug(f"Markdown lines:\n{md_lines}\n")
+            inkex.utils.debug(f"Converter object:\n{converter!r}")
 
 
         converter.y_cursor = start_y

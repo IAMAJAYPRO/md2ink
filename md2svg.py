@@ -73,7 +73,7 @@ class MarkdownToSVG:
             textSpan(x, y + i * self.LINE_SPACING, line) for i, line in enumerate(lines)
         )
         return (f'<text xml:space="preserve"  '  # transform="scale(1)"
-                f'style="font-size:{self.FONT_SIZE}px; line-height:{self.FONT_SIZE + 2}px; '
+                f'style="font-size:{self.FONT_SIZE}px; line-height:{self.LINE_SPACING}px; '
                 # text-align:start; letter-spacing:-0.01px; white-space:pre; fill:#000000;" '
                 f'font-family:{FONT_FAMILIY};" '
                 # cords require here too for hershey
@@ -147,7 +147,10 @@ class MarkdownToSVG:
             self.svg_elements.append(lines)
 
     def export_svg(self, filename="out.svg"):
-        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="2000" id="table" height="{self.y_cursor + 50}">\n{self.svg_elements}</svg>'
+        svg_content = f'''<svg xmlns="http://www.w3.org/2000/svg" 
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    width="2000" id="table" height="{self.y_cursor + 50}">
+    {self.svg_elements}</svg>'''
         with open(filename, "w") as f:
             f.write(svg_content)
         print(f"SVG created: {filename}")
