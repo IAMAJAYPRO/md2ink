@@ -146,11 +146,14 @@ class MarkdownToSVG:
             self.svg_elements.append(elements)
             self.svg_elements.append(lines)
 
-    def export_svg(self, filename="out.svg"):
-        svg_content = f'''<svg xmlns="http://www.w3.org/2000/svg" 
+    def convert_svg(self):
+        return f'''<svg xmlns="http://www.w3.org/2000/svg" 
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
     width="2000" id="table" height="{self.y_cursor + 50}">
     {self.svg_elements}</svg>'''
+
+    def export_svg(self, filename="out.svg"):
+        svg_content = self.convert_svg()
         with open(filename, "w") as f:
             f.write(svg_content)
         print(f"SVG created: {filename}")
@@ -182,7 +185,7 @@ if __name__ == "__main__":
                         help="Gap after each column in character_widths (default: 0)")
     parser.add_argument("--preset", type=Verify.preset,
                         default="NONE", help="Paper preset to use (SUNDARAM, NONE)")
-    parser.add_argument("--debug" ,action="store_true")
+    parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
     with open(args.input, "r") as f:

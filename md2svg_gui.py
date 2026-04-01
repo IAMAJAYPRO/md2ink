@@ -1,9 +1,5 @@
-import sys
-import os
-sys.path.append(os.path.dirname(__file__))
-
-import inkex
 from md2svg import MarkdownToSVG
+import inkex
 
 
 class Extension(inkex.EffectExtension):
@@ -17,14 +13,14 @@ class Extension(inkex.EffectExtension):
         pars.add_argument("--draw_borders", type=inkex.Boolean, default=True)
         pars.add_argument("--preset")
 
-        pars.add_argument("--tabs", default="")  # <<< ignore Inkscape tab argument
+        # <<< ignore Inkscape tab argument
+        pars.add_argument("--tabs", default="")
         pars.add_argument("--debug", type=inkex.Boolean, default=False,
-                  help="Enable debug output")
+                          help="Enable debug output")
+        pars.add_argument("--preserve_original",
+                          type=inkex.Boolean, default=True)
 
     def effect(self):
-        import tempfile
-        import os
-
         selected = self.svg.selection
 
         md_lines = []
@@ -61,22 +57,22 @@ class Extension(inkex.EffectExtension):
             inkex.utils.debug(f"Markdown lines:\n{md_lines}\n")
             inkex.utils.debug(f"Converter object:\n{converter!r}")
 
-
         converter.y_cursor = start_y
         converter.convert(md_lines)
 
-        # create temp svg file
-        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".svg")
-        tmp.close()
+        from io import StringIO
 
-        converter.export_svg(tmp.name)
+        # get SVG string directly
+        svg_string = converter.convert_svg()
 
-        # import svg into document
+        # load SVG from string
+        svg_io = StringIO(svg_string)
+        loaded_svg = inkex.load_svg(svg_io)
+
+        # append imported elements into current document
         self.document.getroot().append(
-            inkex.load_svg(tmp.name).getroot()[0]
+            loaded_svg.getroot()[0]
         )
-
-        os.remove(tmp.name)
 
 
 if __name__ == "__main__":

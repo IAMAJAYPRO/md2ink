@@ -9,6 +9,7 @@
     <page name="input" gui-text="Input">
       <param name="md_input" type="string" appearance="multiline" gui-text="Markdown Input" />
       <param name="debug" type="bool" gui-text="Debug Mode">true</param>
+      <param name="preserve_original" type="bool" gui-text="Preserve Original">true</param>
     </page>
 
     <!-- TABLE TAB -->
