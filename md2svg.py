@@ -57,7 +57,7 @@ class MarkdownToSVG:
             for c, cell in enumerate(row):
                 lines = self._wrap_text(cell)
                 wrapped_row.append(lines)
-                max_len = max(len(line) for line in lines)
+                max_len = max(len(line) for line in lines) if lines else 0
                 col_widths[c] = max(
                     col_widths[c], max_len * self.FONT_WIDTH)
             wrapped_rows.append(wrapped_row)
