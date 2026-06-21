@@ -39,11 +39,13 @@
         • Column gap control
         • Paper presets
         • Works with Hershey Text extension
-
+        &#10;
         CLI Version:
         md2svg.py input.md --max-chars 20 --col-gap 2
-
-        Made by @IAMAJAYPRO
+        &#10;
+        Made by Ajay Maurya (@IAMAJAYPRO) -- Backend + CLI + Frontend,
+        Vaibhav Singh -- FRONTEND,
+        AKASH HOLSAMBLE (@Beast18akash) -- FRONTEND inside inkscape
       </param>
     </page>
     

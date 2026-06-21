@@ -155,7 +155,7 @@ The tool generates an SVG containing:
 
 # Author
 
-Made by **@IAMAJAYPRO**  -- Backend + CLI + Frontend
+Made by AJAY MAURYA (**@IAMAJAYPRO**)  -- Backend + CLI + Frontend
 VAIBHAV SINGH -- FRONTEND
 AKASH HOLSAMBLE **@Beast18akash** -- FRONTEND inside inkscape
 

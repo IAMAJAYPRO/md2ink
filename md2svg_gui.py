@@ -22,22 +22,32 @@ class Extension(inkex.EffectExtension):
 
     def effect(self):
         selected = self.svg.selection
+        selected_elements = list(selected.values())  # save originals
 
         md_lines = []
         start_x = 0
         start_y = 0
 
         if selected:
-            first = list(selected.values())[0]
-            start_x = float(first.get("x", 0))
-            start_y = float(first.get("y", 0))
+            first = selected_elements[0]
+            #bbox = first.bounding_box()
+            
+            #start_x = bbox.left
+            #start_y = bbox.top
+
+            if self.options.debug:
+                inkex.utils.debug(f"x={first.get('x')}")
+                inkex.utils.debug(f"y={first.get('y')}")
+                #inkex.utils.debug(
+                 #   f"bbox=({bbox.left}, {bbox.top}) -> ({bbox.right}, {bbox.bottom})")
 
             for elem in selected.values():
                 if isinstance(elem, inkex.TextElement):
                     text = "".join(elem.itertext())
                     md_lines.extend(text.splitlines())
         else:
-            md_lines = self.options.md_input.splitlines()
+            md_text = self.options.md_input.replace("\\n", "\n")
+            md_lines = md_text.splitlines()
 
         scale = self.svg.unittouu("1px")
 
@@ -57,7 +67,7 @@ class Extension(inkex.EffectExtension):
             inkex.utils.debug(f"Markdown lines:\n{md_lines}\n")
             inkex.utils.debug(f"Converter object:\n{converter!r}")
 
-        converter.y_cursor = start_y
+        converter.y_cursor = 0
         converter.convert(md_lines)
 
         from io import StringIO
@@ -68,11 +78,19 @@ class Extension(inkex.EffectExtension):
         # load SVG from string
         svg_io = StringIO(svg_string)
         loaded_svg = inkex.load_svg(svg_io)
-
+        loaded_svg.getroot()[0].set(
+            "transform", f"translate({start_x},{start_y})")
         # append imported elements into current document
         self.document.getroot().append(
             loaded_svg.getroot()[0]
         )
+
+        # remove originals if preserve_original is disabled
+        if not self.options.preserve_original:
+            for elem in selected_elements:
+                parent = elem.getparent()
+                if parent is not None:
+                    parent.remove(elem)
 
 
 if __name__ == "__main__":

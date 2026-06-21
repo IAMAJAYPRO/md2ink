@@ -126,6 +126,8 @@ class MarkdownToSVG:
         buffer = []
         for line in md_content:
             if "|" in line:
+                if re.fullmatch(r"\s*\|?[\s:\-|\+]+\|?\s*", line):
+                    continue
                 cells = re.findall(r'\s*([^|]+)\s*', line)
                 if cells:
                     buffer.append(cells)
