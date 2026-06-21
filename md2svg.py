@@ -96,7 +96,8 @@ class MarkdownToSVG:
                     x_cursor + 5, y_cursor + self.FONT_SIZE, cell_lines))
                 x_cursor += col_widths[c] + self.COL_GAP
             y_cursor += rh
-
+        lines = Group(label="Lines")
+        
         if self.DRAW_BORDERS:
             # Outer boundary as a single rectangle (so Inkscape treats it as one object)
             border = Rect(0, y_offset, table_width, table_height)
