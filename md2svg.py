@@ -4,7 +4,7 @@ import textwrap
 import html
 from Objects import Line, Group, textSpan, Rect
 
-FONT_FAMILIY = ""#"Myhandwriting"
+FONT_FAMILIY = ""  # "Myhandwriting"
 # mm= px/(DPI:=96)*25.4
 # PX = mm*DPI/25.4
 
@@ -30,13 +30,15 @@ class MarkdownToSVG:
         return f"{self.__class__.__name__}({attrs})"
 
     def __init__(self, FONT_SIZE=28, LINE_SPACING=30.5,
-                 MAX_CHARS=None, DRAW_BORDERS=True, COL_GAP=0, RATIO=0.6):
+                 MAX_CHARS=None, DRAW_BORDERS=True, COL_GAP=0, RATIO=0.6,
+                 FONT_FAMILY="Myhandwriting"):
         self.FONT_SIZE = FONT_SIZE
         self.LINE_SPACING = LINE_SPACING
         self.MAX_CHARS = MAX_CHARS
         self.DRAW_BORDERS = DRAW_BORDERS
         self.COL_GAP = COL_GAP*RATIO*FONT_SIZE
         self.FONT_WIDTH = RATIO*FONT_SIZE
+        self.FONT_FAMILY = FONT_FAMILY
         self.svg_elements = Group(label="Table")
         self.y_cursor = 0
 
@@ -75,7 +77,7 @@ class MarkdownToSVG:
         return (f'<text xml:space="preserve"  '  # transform="scale(1)"
                 f'style="font-size:{self.FONT_SIZE}px; line-height:{self.LINE_SPACING}px; '
                 # text-align:start; letter-spacing:-0.01px; white-space:pre; fill:#000000;" '
-                f'font-family:{FONT_FAMILIY};" '
+                f'font-family:{self.FONT_FAMILY};" '
                 # cords require here too for hershey
                 f'x="0" y="0">\n{tspans}\n</text>\n')
 
@@ -97,7 +99,7 @@ class MarkdownToSVG:
                 x_cursor += col_widths[c] + self.COL_GAP
             y_cursor += rh
         lines = Group(label="Lines")
-        
+
         if self.DRAW_BORDERS:
             # Outer boundary as a single rectangle (so Inkscape treats it as one object)
             border = Rect(0, y_offset, table_width, table_height)

@@ -10,6 +10,7 @@ class Extension(inkex.EffectExtension):
         pars.add_argument("--max_chars", type=int, default=0)
         pars.add_argument("--col_gap", type=float, default=0)
         pars.add_argument("--ratio", type=float, default=0.6)
+        pars.add_argument("--font_family", default="Myhandwriting")
         pars.add_argument("--draw_borders", type=inkex.Boolean, default=True)
         pars.add_argument("--preset")
 
@@ -57,7 +58,8 @@ class Extension(inkex.EffectExtension):
             MAX_CHARS=self.options.max_chars,
             DRAW_BORDERS=self.options.draw_borders,
             COL_GAP=self.options.col_gap * scale,
-            RATIO=self.options.ratio
+            RATIO=self.options.ratio,
+            FONT_FAMILY=self.options.font_family
         )
 
         if self.options.debug:
